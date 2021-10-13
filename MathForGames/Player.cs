@@ -5,7 +5,7 @@ using MathLibrary;
 
 namespace MathForGames
 {
-    class Player:Actor
+    class Player : Actor
     {
         private float _speed;
         private Vector2 _velocity;
@@ -45,12 +45,13 @@ namespace MathForGames
             if (keyPressed == ConsoleKey.S)
                 moveDirection = new Vector2 { y = 1 };
 
-            moveDirection.x *= Speed;
-            moveDirection.y *= Speed;
+            Velocity = moveDirection * Speed;
+            Position += Velocity;
+        }
 
-            Velocity = moveDirection;
-
-            Position = new Vector2 { x = Position.x + Velocity.x, y = Position.y + Velocity.y };
+        public override void OnCollision(Actor actor)
+        {
+            Engine.CloseApplication();
         }
     }
 }

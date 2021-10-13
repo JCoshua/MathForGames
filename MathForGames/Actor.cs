@@ -52,7 +52,6 @@ namespace MathForGames
 
         public virtual void Update()
         {
-            _position.x = Position.x + 1;
         }
 
         public virtual void Draw()
@@ -61,6 +60,11 @@ namespace MathForGames
         }
 
         public virtual void End()
+        {
+
+        }
+
+        public virtual void OnCollision(Actor actor)
         {
 
         }

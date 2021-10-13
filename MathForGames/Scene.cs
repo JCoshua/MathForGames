@@ -37,6 +37,11 @@ namespace MathForGames
                     _actors[i].Start();
 
                 _actors[i].Update();
+
+                //Checks for collision
+                for (int j = 0; j < _actors.Length; j++)
+                        if (_actors[i].Position == _actors[j].Position && i != j)
+                            _actors[i].OnCollision(_actors[j]);
             }
                 
 

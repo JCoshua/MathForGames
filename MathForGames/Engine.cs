@@ -26,6 +26,8 @@ namespace MathForGames
             {
                 Update();
                 Draw();
+                while (Console.KeyAvailable)
+                    Console.ReadKey(true);
                 Thread.Sleep(60);
             }
 
@@ -45,6 +47,7 @@ namespace MathForGames
             scene.AddActor(actor);
             scene.AddActor(actor2);
             scene.AddActor(player);
+
             _currentSceneIndex = AddScene(scene);
             _scenes[_currentSceneIndex].Start();
 
@@ -152,6 +155,14 @@ namespace MathForGames
             //Set the buffer at the index of the given position to be the icon
             _buffer[(int)position.x, (int)position.y] = icon;
             return true;
+        }
+
+        /// <summary>
+        /// Ends the application
+        /// </summary>
+        public static void CloseApplication()
+        {
+            _applicationShouldClose = true;
         }
     }
 }
