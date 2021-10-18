@@ -72,7 +72,7 @@ namespace MathForGames
 
         public virtual void OnCollision(Actor actor)
         {
-
+            Console.WriteLine("Collision occured");
         }
     }
 }
