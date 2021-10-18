@@ -31,13 +31,14 @@ namespace MathForGames
 
         public override void Update(float deltaTime)
         {
+            //Get the player input direction
             int xDirection = -Convert.ToInt32(Raylib.IsKeyDown(KeyboardKey.KEY_A)) + Convert.ToInt32(Raylib.IsKeyDown(KeyboardKey.KEY_D));
             int yDirection = -Convert.ToInt32(Raylib.IsKeyDown(KeyboardKey.KEY_W)) + Convert.ToInt32(Raylib.IsKeyDown(KeyboardKey.KEY_S));
 
-
+            //Creates a vector that stores the move input
             Vector2 moveDirection = new Vector2( xDirection, yDirection);
 
-            Velocity = moveDirection * Speed;
+            Velocity = moveDirection * Speed * deltaTime;
             Position += Velocity;
         }
 
