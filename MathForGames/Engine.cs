@@ -58,7 +58,7 @@ namespace MathForGames
         {
             Console.CursorVisible = false;
             //Clears the stuff that was on the screen in the last frame
-            _buffer = new Icon[Console.WindowWidth, Console.WindowHeight - 1];
+            _buffer = new Icon[Console.WindowWidth - 1, Console.WindowHeight - 1];
 
             //Resets the cursor poistion to the top to draw over the screen
             Console.SetCursorPosition(0, 0);
