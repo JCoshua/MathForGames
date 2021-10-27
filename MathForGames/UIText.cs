@@ -7,36 +7,12 @@ namespace MathForGames
 {
     class UIText : Actor
     {
-        private string _text;
-        private int _width;
-        private int _height;
-
-        /// <summary>
-        /// The Text that is within the Text Box
-        /// </summary>
-        public string Text
-        {
-            get { return _text; }
-            set { _text = value; }
-        }
-
-        /// <summary>
-        /// The width of the text box. Wraps text if the cursor is outside the max width.
-        /// </summary>
-        public int Width
-        {
-            get { return _width; }
-            set { _width = value; }
-        }
-
-        /// <summary>
-        /// The height of the text box. Wraps text if the cursor is outside the max height.
-        /// </summary>
-        public int Height
-        {
-            get { return _height; }
-            set { _height = value; }
-        }
+        public string Text;
+        public int Width;
+        public int Height;
+        public int FontSize;
+        public Font Font;
+        public Color FontColor;
 
         /// <summary>
         /// The UIText Constructor
@@ -48,12 +24,15 @@ namespace MathForGames
         /// <param name="width">The length of the text box</param>
         /// <param name="height">the width</param>
         /// <param name="text">the text within the box</param>
-        public UIText(float x, float y, string name, Color color, int width, int height, string text = "") 
-            : base('\0', x, y, color, name)
+        public UIText(float x, float y, string name, Color color, int width, int height, int fontSize, string text = "")
+            : base(x, y, name)
         {
             Text = text;
             Width = width;
             Height = height;
+            Font = Raylib.LoadFont("resources/fonts/alagard.png");
+            FontSize = fontSize;
+            FontColor = color;
         }
 
         public override void Update(float DeltaTime)
@@ -63,37 +42,8 @@ namespace MathForGames
 
         public override void Draw()
         {
-            int cursorPosX = (int)Position.x;
-            int cursorPosY = (int)Position.y;
-
-            Icon currentLetter = new Icon { Color = Icon.Color };
-
-            char[] textChar = Text.ToCharArray();
-
-            for (int i = 0; i < textChar.Length; i++)
-            {
-                currentLetter.Symbol = textChar[i];
-
-                if (currentLetter.Symbol == '\0')
-                {
-                    cursorPosX = (int)Position.x;
-                    cursorPosY++;
-                    continue;
-                }
-
-                cursorPosX++;
-
-                if(cursorPosX- (int)Position.x > Width)
-                {
-                    cursorPosX = (int)Position.x;
-                    cursorPosY++;
-                }
-
-                if (cursorPosY - (int)Position.y > Height)
-                {
-                    break;
-                }
-            }
+            Rectangle textBox = new Rectangle(Position.x, Position.y, Width, Height);
+            Raylib.DrawTextRec(Font, Text, textBox, FontSize, 1, true, FontColor);
         }
     }
 }

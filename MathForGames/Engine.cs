@@ -61,11 +61,7 @@ namespace MathForGames
             Raylib.SetTargetFPS(0);
 
             Scene scene = new Scene();
-            Player player = new Player('@', 10, 10, 50, Color.WHITE, "Player");
-            Actor actor = new Actor('A', 10, 10, Color.RED, "Opponent");
             AddScene(scene);
-            scene.AddActor(player);
-            scene.AddActor(actor);
             _scenes[_currentSceneIndex].Start();
 
         }
@@ -84,7 +80,7 @@ namespace MathForGames
         private void Draw()
         {
             Raylib.BeginDrawing();
-            Raylib.ClearBackground(Color.DARKGREEN);
+            Raylib.ClearBackground(Color.BLACK);
 
             //Adds all actor icons to buffer
             _scenes[_currentSceneIndex].Draw();

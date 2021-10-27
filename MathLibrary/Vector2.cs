@@ -7,7 +7,7 @@ namespace MathLibrary
         public float x;
         public float y;
 
-        public Vector2 (float X, float Y)
+        public Vector2(float X, float Y)
         {
             x = X;
             y = Y;
@@ -25,7 +25,7 @@ namespace MathLibrary
         /// <summary>
         /// Gets the normalized version of this vector without changing it
         /// </summary>
-         public Vector2 Normalized
+        public Vector2 Normalized
         {
             get
             {
@@ -41,8 +41,92 @@ namespace MathLibrary
         {
             if (Magnitude == 0)
                 return new Vector2();
+
             return this / Magnitude;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>The Dot Product of the first vector onto the second</returns>
+        public static float DotProduct(Vector2 lhs, Vector2 rhs)
+        {
+            return lhs.x * rhs.x + lhs.y * rhs.y;
+        }
+
+        /// <summary>
+        /// Gets the Angle of a Dot Product in Radian form
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>The Radian of the Angle</returns>
+        public static double GetRadian(Vector2 lhs, Vector2 rhs)
+        {
+            float dotProduct = DotProduct(lhs, rhs);
+            if (dotProduct > 1)
+                dotProduct = 1;
+            if (dotProduct < -1)
+                dotProduct = -1;
+            return Math.Acos(dotProduct);
+        }
+
+        /// <summary>
+        /// Gets the Angle of a Dot Product in Radian form
+        /// </summary>
+        /// <param name="dotProduct">The Dot Product</param>
+        /// <returns>The Radian of the Angle</returns>
+        public static double GetRadian(float dotProduct)
+        {
+            if (dotProduct > 1)
+                dotProduct = 1;
+            if (dotProduct < -1)
+                dotProduct = -1;
+            return Math.Acos(dotProduct);
+        }
+
+        /// <summary>
+        /// Gets the Angle of a Dot Product in Degree form
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>The Degree of the Angle</returns>
+        public static double GetDegree(Vector2 lhs, Vector2 rhs)
+        {
+            float dotProduct = DotProduct(lhs, rhs);
+            if (dotProduct > 1)
+                dotProduct = 1;
+            if (dotProduct < -1)
+                dotProduct = -1;
+            return Math.Acos(dotProduct) * (180 / Math.PI);
+        }
+
+        /// <summary>
+        /// Gets the Angle of a Dot Product in Degree form
+        /// </summary>
+        /// <param name="dotProduct">The Dot Product</param>
+        /// <returns>The Degree of the Angle</returns>
+        public static double GetDegree(float dotProduct)
+        {
+            if (dotProduct > 1)
+                dotProduct = 1;
+            if (dotProduct < -1)
+                dotProduct = -1;
+            return Math.Acos(dotProduct) * (180 / Math.PI);
+        }
+
+        /// <summary>
+        /// Finds the distatnce from the first vector to the second
+        /// </summary>
+        /// <param name="lhs">The Starting point</param>
+        /// <param name="rhs">The Ending Point</param>
+        /// <returns></returns>
+        public static float Distance(Vector2 lhs, Vector2 rhs)
+        {
+            return (rhs - lhs).Magnitude;
+        }
+
 
         /// <summary>
         /// Adds the x and y values of two vectors together.
