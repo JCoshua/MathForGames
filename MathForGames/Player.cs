@@ -24,7 +24,7 @@ namespace MathForGames
         }
 
         public Player(float x, float y, float speed, string name = "Actor", string path = "")
-           : base(x, y, name, path)
+            : base(x, y, name, path)
         {
             _speed = speed;
         }
@@ -36,15 +36,37 @@ namespace MathForGames
             int yDirection = -Convert.ToInt32(Raylib.IsKeyDown(KeyboardKey.KEY_W)) + Convert.ToInt32(Raylib.IsKeyDown(KeyboardKey.KEY_S));
 
             //Creates a vector that stores the move input
-            Vector2 moveDirection = new Vector2( xDirection, yDirection);
+            Vector2 moveDirection = new Vector2(xDirection, yDirection);
 
-            Velocity = moveDirection.Normalized * Speed * deltaTime;
-            Position += Velocity;
+            if (xDirection != 0 || yDirection != 0)
+            {
+                Velocity = moveDirection.Normalized * Speed * deltaTime;
+
+                if (Velocity.Magnitude > 0)
+                    Forwards = Velocity.Normalized;
+
+                Translate(Velocity.x, Velocity.y);
+            }
+            base.Update(deltaTime);
+        }
+
+        public override void Draw()
+        {
+            base.Draw();
         }
 
         public override void OnCollision(Actor actor)
         {
-
+            if (actor.Name == "HorizontalWall")
+            {
+                Translate(0, -Forwards.y);
+                Console.WriteLine("Vertical Collision");
+            }
+            else if (actor.Name == "VerticalWall")
+            {
+                Translate(-Forwards.x, 0);
+                Console.WriteLine("Horizontal Collision");
+            }
         }
     }
 }

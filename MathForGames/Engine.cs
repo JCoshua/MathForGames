@@ -62,6 +62,14 @@ namespace MathForGames
 
             Scene scene = new Scene();
             AddScene(scene);
+            Actor sun = new Actor(390, 225, "Sun", "Images/sun.png");
+            Actor mercury = new Actor(0.4f, 0.225f, "Mercury", "Images/mercury.png");
+            sun.Collider = new CircleCollider(50, sun);
+            sun.SetScale(150, 140);
+            mercury.SetScale(0.2f, 0.16f);
+            scene.AddActor(sun);
+            scene.AddActor(mercury);
+            sun.AddChild(mercury);
             _scenes[_currentSceneIndex].Start();
 
         }
