@@ -14,6 +14,7 @@ namespace MathForGames
         private static int _currentSceneIndex;
         private Scene[] _scenes = new Scene[0];
         private Stopwatch _stopwatch = new Stopwatch();
+        private Camera3D _camera = new Camera3D();
 
         /// <summary>
         /// Called to begin the application
@@ -23,9 +24,9 @@ namespace MathForGames
             //Call Start for the entire application
             Start();
 
-            float currentTime = 0;
+            float currentTime;
             float lastTime = 0;
-            float deltaTime = 0;
+            float deltaTime;
             //Loop until the application is told to close
             while(!_applicationShouldClose && !Raylib.WindowShouldClose())
             {
@@ -48,6 +49,19 @@ namespace MathForGames
             End();
         }
 
+        private void InitializeCamera()
+        {
+            //Camera's Position
+            _camera.position = new System.Numerics.Vector3(0, 10, 10);
+            //Camera's Focus Point
+            _camera.target = new System.Numerics.Vector3(0, 0, 0);
+            //Camera's Up Vector (rotation towards target)
+            _camera.up = new System.Numerics.Vector3(0, 1, 0);
+            //The Field of View on the Y Axis (Zoom)
+            _camera.fovy = 45;
+            //The Camera's mode type
+            _camera.projection = CameraProjection.CAMERA_PERSPECTIVE;
+        }
         /// <summary>
         /// Called when the application starts
         /// </summary>
@@ -57,45 +71,15 @@ namespace MathForGames
             _stopwatch.Start();
 
             //Create a window using RayLib
-            Raylib.InitWindow(1920, 1020, "Math For Games");
+            Raylib.InitWindow(800, 450, "Math For Games");
             Raylib.SetTargetFPS(60);
+            InitializeCamera();
 
             Scene scene = new Scene();
             AddScene(scene);
-            Actor background = new Actor(960, 512, "Space", "Images/background.png");
-            Actor sun = new Actor(960, 512, "Sun", "Images/sun.png");
-            Actor mercury = new Actor(0.25f, 0.225f, "Mercury", "Images/mercury.png");
-            Actor venus = new Actor(0.375f, -0.35f, "Venus", "Images/venus.png");
-            Actor earth = new Actor(0, 0.575f, "Earth", "Images/earth.png");
-            Actor mars = new Actor(-0.5f, 0.6f, "Mars", "Images/mars.png");
-            Actor moon = new Actor(-0.6f, 0.65f, "Moon", "Images/moon.png");
-            Actor astroid = new Actor(-0.001f, -0.001f, "Astroid Belt", "Images/asteroidbelt.png");
-            Actor jupiter = new Actor(-0.8f, 0.85f, "Jupiter", "Images/jupiter.png");
-            Actor saturn = new Actor(0.95f, -0.85f, "Saturn", "Images/saturn.png");
-            Actor saturnring = new Actor(0, 0, "Saturn's Rings", "Images/saturnring.png");
-            background.SetScale(1925, 1025);
-            sun.SetScale(250, 230);
-            mercury.SetScale(0.1f, 0.09f);
-            venus.SetScale(0.1f, 0.1f);
-            earth.SetScale(0.125f, 0.125f);
-            moon.SetScale(0.15f, 0.15f);
-            mars.SetScale(0.075f, 0.075f);
-            jupiter.SetScale(0.275f, 0.275f);
-            astroid.SetScale(2.05f, 2.05f);
-            saturn.SetScale(0.2f, 0.2f);
-            saturnring.SetScale(1.4f, 1.4f);
-            sun.AddChild(mercury);
-            sun.AddChild(venus);
-            sun.AddChild(earth);
-            sun.AddChild(mars);
-            earth.AddChild(moon);
-            sun.AddChild(astroid);
-            sun.AddChild(jupiter);
-            sun.AddChild(saturn);
-            saturn.AddChild(saturnring);
-
-            scene.AddActor(background);
-            scene.AddActor(sun);
+            Player player = new Player(0, 10, 0, 50, "Player", Shape.SPHERE);
+            player.SetScale(1, 1, 1);
+            scene.AddActor(player);
             _scenes[_currentSceneIndex].Start();
 
         }
@@ -114,11 +98,15 @@ namespace MathForGames
         private void Draw()
         {
             Raylib.BeginDrawing();
-            Raylib.ClearBackground(Color.BLACK);
+            Raylib.BeginMode3D(_camera);
+
+            Raylib.ClearBackground(Color.DARKGREEN);
+            Raylib.DrawGrid(50, 1);
 
             //Adds all actor icons to buffer
             _scenes[_currentSceneIndex].Draw();
 
+            Raylib.EndMode3D();
             Raylib.EndDrawing();
         }
 

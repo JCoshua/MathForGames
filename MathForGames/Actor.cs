@@ -6,20 +6,26 @@ using Raylib_cs;
 
 namespace MathForGames
 {
+    public enum Shape
+    {
+        CUBE,
+        SPHERE
+    }
+
     class Actor
     {
         private string _name;
         private bool _started;
-        private Vector2 _forward = new Vector2(1, 0);
+        private Vector3 _forwards = new Vector3(0, 0, 1);
         private Collider _collider;
-        private Matrix3 _globalTransform = Matrix3.Identity;
-        private Matrix3 _localTransform = Matrix3.Identity;
-        private Matrix3 _translation = Matrix3.Identity;
-        private Matrix3 _rotation = Matrix3.Identity;
-        private Matrix3 _scale = Matrix3.Identity;
+        private Matrix4 _globalTransform = Matrix4.Identity;
+        private Matrix4 _localTransform = Matrix4.Identity;
+        private Matrix4 _translation = Matrix4.Identity;
+        private Matrix4 _rotation = Matrix4.Identity;
+        private Matrix4 _scale = Matrix4.Identity;
         private Actor _parent;
         private Actor[] _children = new Actor[0];
-        private Sprite _sprite;
+        private Shape _shape;
 
         public String Name
         {
@@ -37,14 +43,14 @@ namespace MathForGames
         /// <summary>
         /// The forwards facing rotation of the actor
         /// </summary>
-        public Vector2 Forwards
+        public Vector3 Forwards
         {
-            get { return new Vector2(_rotation.M00, _rotation.M10); }
-            set
-            {
-                Vector2 point = value.Normalized + WorldPosition;
-                LookAt(point);
-            }
+            get { return new Vector3(_rotation.M02, _rotation.M12, _rotation.M22); }
+            //set
+            //{
+            //    Vector2 point = value.Normalized + WorldPosition;
+            //    LookAt(point);
+            //}
         }
 
         /// <summary>
@@ -56,13 +62,13 @@ namespace MathForGames
             set { _collider = value; }
         }
 
-        public Matrix3 GlobalTransform
+        public Matrix4 GlobalTransform
         {
             get { return _globalTransform; }
             private set { _globalTransform = value; }
         }
 
-        public Matrix3 LocalTransform
+        public Matrix4 LocalTransform
         {
             get { return _localTransform; }
             private set { _localTransform = value; }
@@ -86,39 +92,31 @@ namespace MathForGames
         }
 
         /// <summary>
-        /// The actor's sprite
-        /// </summary>
-        public Sprite Sprite
-        {
-            get { return _sprite; }
-            set { _sprite = value; }
-        }
-
-        /// <summary>
         /// The position of the actor relative to the parent
         /// </summary>
-        public Vector2 LocalPosition
+        public Vector3 LocalPosition
         {
-            get { return new Vector2(_localTransform.M02 + WorldPosition.x, _localTransform.M12 + WorldPosition.y); }
-            set { SetTranslation(value.x + WorldPosition.x, value.y + WorldPosition.y); }
+            get { return new Vector3(_localTransform.M02 + WorldPosition.x, _localTransform.M12 + WorldPosition.y, _localTransform.M22 + WorldPosition.z); }
+            set { SetTranslation(value.x + WorldPosition.x, value.y + WorldPosition.y, value.z + WorldPosition.z); }
         }
 
         /// <summary>
         /// The absolute position of the actor, regardless of parent
         /// </summary>
-        public Vector2 WorldPosition
+        public Vector3 WorldPosition
         {
             //Return the Global Transforms T Column
-            get { return new Vector2(_translation.M02, _translation.M12); }
+            get { return new Vector3 (_translation.M02, _translation.M12, _translation.M22); }
             set 
             {
                 //If the actor has a Parent
                 if (Parent != null)
                 {
                     //Offset the values by the Parents and tranlate the actor
-                    float xScale = (value.x - Parent.WorldPosition.x) / new Vector2(_globalTransform.M00, _globalTransform.M10).Magnitude;
-                    float yScale = (value.y - Parent.WorldPosition.y) / new Vector2(_globalTransform.M10, _globalTransform.M11).Magnitude;
-                    SetTranslation(xScale, yScale);
+                    float xScale = (value.x - Parent.WorldPosition.x) / new Vector3(_globalTransform.M00, _globalTransform.M10, _globalTransform.M20).Magnitude;
+                    float yScale = (value.y - Parent.WorldPosition.y) / new Vector3(_globalTransform.M01, _globalTransform.M11, _globalTransform.M21).Magnitude;
+                    float zScale = (value.z - Parent.WorldPosition.z) / new Vector3(_globalTransform.M02, _globalTransform.M12, _globalTransform.M22).Magnitude;
+                    SetTranslation(xScale, yScale, zScale);
                 }
                 //Else change the Local Position to the given values
                 else
@@ -129,15 +127,16 @@ namespace MathForGames
         /// <summary>
         /// The Size of the actor
         /// </summary>
-        public Vector2 Size
+        public Vector3 Size
         {
             get 
             {
-                float xScale = new Vector2(_scale.M00, _scale.M10).Magnitude;
-                float yScale = new Vector2(_scale.M01, _scale.M11).Magnitude;
-                return new Vector2(xScale, yScale); 
+                float xScale = new Vector3(_scale.M00, _scale.M10, _scale.M20).Magnitude;
+                float yScale = new Vector3(_scale.M01, _scale.M11, _scale.M21).Magnitude;
+                float zScale = new Vector3(_scale.M02, _scale.M12, _scale.M22).Magnitude;
+                return new Vector3(xScale, yScale, zScale); 
             }
-            set { SetScale(value.x, value.y); }
+            set { SetScale(value.x, value.y, value.z); }
         }
 
         /// <summary>
@@ -150,18 +149,15 @@ namespace MathForGames
         /// </summary>
         /// <param name="position">The position of the actor</param>
         /// <param name="name">The actor's name</param>
-        /// <param name="path">The path of the actor's sprite</param>
-        public Actor(Vector2 position, string name = "Actor", string path = "")
+        public Actor(Vector3 position, string name = "Actor", Shape shape = Shape.SPHERE)
         {
             LocalPosition = position;
             _name = name;
-
-            if (path != "")
-                _sprite = new Sprite(path);
+            _shape = shape;
         }
 
-        public Actor(float x, float y, string name = "Actor", string path = "") :
-            this(new Vector2 { x = x, y = y }, name, path)
+        public Actor(float x, float y, float z, string name = "Actor", Shape shape = Shape.SPHERE) :
+            this(new Vector3 { x = x, y = y, z = z}, name, shape)
         { }
 
         /// <summary>
@@ -169,7 +165,6 @@ namespace MathForGames
         /// </summary>
         public void UpdateTransforms()
         {
-            LocalTransform = _translation * _rotation * _scale;
             if (Parent != null)
                 GlobalTransform = Parent.GlobalTransform * LocalTransform;
             else 
@@ -243,21 +238,23 @@ namespace MathForGames
 
         public virtual void Update(float deltaTime)
         {
-            if (Name != "Space" && Name != "UFO")
-                Rotate(0.001f);
-            if (Name == "Uranus")
-                Rotate(-0.002f);
-            if (Name == "Saturn's Rings")
-                Rotate(-0.005f);
-
-
+            LocalTransform = _translation * _rotation * _scale;
             UpdateTransforms();
         }
 
         public virtual void Draw()
         {
-            if (_sprite != null)
-                _sprite.Draw(GlobalTransform);
+            System.Numerics.Vector3 position = new System.Numerics.Vector3(WorldPosition.x, WorldPosition.y, WorldPosition.z);
+
+            switch (_shape)
+            {
+                case Shape.CUBE:
+                    Raylib.DrawCube(position, Size.x, Size.y, Size.z, Color.BLACK);
+                    break;
+                case Shape.SPHERE:
+                    Raylib.DrawSphere(position, Size.x, Color.BLACK);
+                    break;
+            }
         }
 
         public void End()
@@ -289,47 +286,57 @@ namespace MathForGames
         /// </summary>
         /// <param name="translationX">The new x position</param>
         /// <param name="translationY">The new y position</param>
-        public void SetTranslation(float translationX, float translationY)
+        /// <param name="translationZ">The new z position</param>
+        public void SetTranslation(float translationX, float translationY, float translationZ)
         {
-            _translation = Matrix3.CreateTranslation(translationX, translationY);
+            _translation = Matrix4.CreateTranslation(translationX, translationY, translationZ);
         }
 
         /// <summary>
         /// Applies the given values to the current translation
         /// </summary>
-        /// <param name="translationX">The amount to move on the x</param>
-        /// <param name="translationY">The amount to move on the yparam>
-        public void Translate(float translationX, float translationY)
+        /// <param name="translationX">The amount to move on the x axis</param>
+        /// <param name="translationY">The amount to move on the y axis</param>
+        /// <param name="translationY">The amount to move on the z axis</param>
+        public void Translate(float translationX, float translationY, float translationZ)
         {
-            _translation *= Matrix3.CreateTranslation(translationX, translationY);
+            _translation *= Matrix4.CreateTranslation(translationX, translationY, translationZ);
         }
 
         /// <summary>
         /// Set the rotation of the actor.
         /// </summary>
         /// <param name="radians">The angle of the new rotation in radians.</param>
-        public void SetRotation(float radians)
+        public void SetRotation(float radiansX, float radiansY, float radiansZ)
         {
-            _rotation = Matrix3.CreateRotation(radians);
+            Matrix4 rotationX = Matrix4.CreateRotationX(radiansX);
+            Matrix4 rotationY = Matrix4.CreateRotationY(radiansY);
+            Matrix4 rotationZ = Matrix4.CreateRotationZ(radiansZ);
+            _rotation = rotationX * rotationY * rotationZ;
+            
         }
 
         /// <summary>
         /// Adds a roation to the current transform's rotation.
         /// </summary>
         /// <param name="radians">The angle in radians to turn.</param>
-        public void Rotate(float radians)
+        public void Rotate(float radiansX, float radiansY, float radiansZ)
         {
-            _rotation *= Matrix3.CreateRotation(radians);
+            Matrix4 rotationX = Matrix4.CreateRotationX(radiansX);
+            Matrix4 rotationY = Matrix4.CreateRotationY(radiansY);
+            Matrix4 rotationZ = Matrix4.CreateRotationZ(radiansZ);
+            _rotation *= rotationX * rotationY * rotationZ;
         }
 
         /// <summary>
         /// Sets the scale of the actor.
         /// </summary>
         /// <param name="x">The value to scale on the x axis.</param>
-        /// <param name="y">The value to scale on the y axis</param>
-        public void SetScale(float x, float y)
+        /// <param name="y">The value to scale on the y axis.</param>
+        /// <param name="z">The value to scale on the z axis.</param>
+        public void SetScale(float x, float y, float z)
         {
-            _scale = Matrix3.CreateScale(x, y);
+            _scale = Matrix4.CreateScale(x, y, z);
         }
 
         /// <summary>
@@ -337,40 +344,41 @@ namespace MathForGames
         /// </summary>
         /// <param name="x">The value to scale on the x axis.</param>
         /// <param name="y">The value to scale on the y axis</param>
-        public void Scale(float x, float y)
+        /// <param name="z">The value to scale on the z axis</param>
+        public void Scale(float x, float y, float z)
         {
-            _scale *= Matrix3.CreateScale(x, y);
+            _scale *= Matrix4.CreateScale(x, y, z);
         }
 
         /// <summary>
         /// Rotates the actor to face the given position
         /// </summary>
         /// <param name="position">The position the actor should be looking towards</param>
-        public void LookAt(Vector2 position)
+        public void LookAt(Vector3 position)
         {
-            //Find the direction the the actor should look in
-            Vector2 direction = (position - WorldPosition).Normalized;
+            ////Find the direction the the actor should look in
+            //Vector3 direction = (position - WorldPosition).Normalized;
 
-            //Use the dot product to find the angle the actor needs to rotate
-            float dotProd = Vector2.DotProduct(direction, Forwards);
+            ////Use the dot product to find the angle the actor needs to rotate
+            //float dotProd = Vector3.DotProduct(direction, Forwards);
 
-            if (dotProd > 1)
-                dotProd = 1;
+            //if (dotProd > 1)
+            //    dotProd = 1;
 
-            float angle = (float)Math.Acos(dotProd);
+            //float angle = (float)Math.Acos(dotProd);
 
 
-            //Find a perpindicular vector to the direction
-            Vector2 perpDirection = new Vector2(direction.y, -direction.x);
+            ////Find a perpindicular vector to the direction
+            //Vector3 perpDirection = new Vector3(direction.y, -direction.x);
 
-            //Find the dot product of the perpindicular vector and the current forward
-            float perpDot = Vector2.DotProduct(perpDirection, Forwards);
+            ////Find the dot product of the perpindicular vector and the current forward
+            //float perpDot = Vector3.DotProduct(perpDirection, Forwards);
 
-            //If the result isn't 0, use it to change the sign of the angle to be either positive or negative
-            if (perpDot != 0)
-                angle *= -perpDot / Math.Abs(perpDot);
+            ////If the result isn't 0, use it to change the sign of the angle to be either positive or negative
+            //if (perpDot != 0)
+            //    angle *= -perpDot / Math.Abs(perpDot);
 
-            Rotate(angle);
+            //Rotate(angle);
         }
     }
 }

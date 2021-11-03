@@ -99,6 +99,16 @@ namespace MathLibrary
                     lhs.M20 * rhs.M02 + lhs.M21 * rhs.M12 + lhs.M22 * rhs.M22
                 );
         }
+
+        public static Vector3 operator *(Matrix3 lhs, Vector3 rhs)
+        {
+            return new Vector3
+                (
+                    lhs.M00 * rhs.x + lhs.M01 * rhs.x + lhs.M02 * rhs.x,
+                    lhs.M10 * rhs.y + lhs.M11 * rhs.y + lhs.M12 * rhs.y,
+                    lhs.M20 * rhs.z + lhs.M21 * rhs.z + lhs.M22 * rhs.z
+                );
+        }
     }
 }
 
