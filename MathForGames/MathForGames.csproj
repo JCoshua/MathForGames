@@ -6,19 +6,64 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Images\asteroidbelt.png" />
+    <None Remove="Images\background.png" />
+    <None Remove="Images\earth.png" />
+    <None Remove="Images\jupiter.png" />
+    <None Remove="Images\mars.png" />
     <None Remove="Images\mercury.png" />
+    <None Remove="Images\moon.png" />
+    <None Remove="Images\saturn.png" />
+    <None Remove="Images\saturnring.png" />
     <None Remove="Images\sun.png" />
+    <None Remove="Images\venus.png" />
     <None Remove="player.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Images\jupiter.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Images\asteroidbelt.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\background.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\earth.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\mars.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Images\mercury.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Images\moon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Images\player.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Images\saturn.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Images\sun.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\venus.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Images\saturnring.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

@@ -57,19 +57,45 @@ namespace MathForGames
             _stopwatch.Start();
 
             //Create a window using RayLib
-            Raylib.InitWindow(800, 450, "Math For Games");
-            Raylib.SetTargetFPS(0);
+            Raylib.InitWindow(1920, 1020, "Math For Games");
+            Raylib.SetTargetFPS(60);
 
             Scene scene = new Scene();
             AddScene(scene);
-            Actor sun = new Actor(390, 225, "Sun", "Images/sun.png");
-            Actor mercury = new Actor(0.4f, 0.225f, "Mercury", "Images/mercury.png");
-            sun.Collider = new CircleCollider(50, sun);
-            sun.SetScale(150, 140);
-            mercury.SetScale(0.2f, 0.16f);
-            scene.AddActor(sun);
-            scene.AddActor(mercury);
+            Actor background = new Actor(960, 512, "Space", "Images/background.png");
+            Actor sun = new Actor(960, 512, "Sun", "Images/sun.png");
+            Actor mercury = new Actor(0.25f, 0.225f, "Mercury", "Images/mercury.png");
+            Actor venus = new Actor(0.375f, -0.35f, "Venus", "Images/venus.png");
+            Actor earth = new Actor(0, 0.575f, "Earth", "Images/earth.png");
+            Actor mars = new Actor(-0.5f, 0.6f, "Mars", "Images/mars.png");
+            Actor moon = new Actor(-0.6f, 0.65f, "Moon", "Images/moon.png");
+            Actor astroid = new Actor(-0.001f, -0.001f, "Astroid Belt", "Images/asteroidbelt.png");
+            Actor jupiter = new Actor(-0.8f, 0.85f, "Jupiter", "Images/jupiter.png");
+            Actor saturn = new Actor(0.95f, -0.85f, "Saturn", "Images/saturn.png");
+            Actor saturnring = new Actor(0, 0, "Saturn's Rings", "Images/saturnring.png");
+            background.SetScale(1925, 1025);
+            sun.SetScale(250, 230);
+            mercury.SetScale(0.1f, 0.09f);
+            venus.SetScale(0.1f, 0.1f);
+            earth.SetScale(0.125f, 0.125f);
+            moon.SetScale(0.15f, 0.15f);
+            mars.SetScale(0.075f, 0.075f);
+            jupiter.SetScale(0.275f, 0.275f);
+            astroid.SetScale(2.05f, 2.05f);
+            saturn.SetScale(0.2f, 0.2f);
+            saturnring.SetScale(1.4f, 1.4f);
             sun.AddChild(mercury);
+            sun.AddChild(venus);
+            sun.AddChild(earth);
+            sun.AddChild(mars);
+            earth.AddChild(moon);
+            sun.AddChild(astroid);
+            sun.AddChild(jupiter);
+            sun.AddChild(saturn);
+            saturn.AddChild(saturnring);
+
+            scene.AddActor(background);
+            scene.AddActor(sun);
             _scenes[_currentSceneIndex].Start();
 
         }

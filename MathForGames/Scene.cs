@@ -99,6 +99,11 @@ namespace MathForGames
             //Adds the new actor to the end of the new array
             tempArray[_actors.Length] = actor;
 
+            Actor[] childArray = new Actor[tempArray.Length + 1];
+            for (int i = 0; i < tempArray.Length; i++)
+                childArray[i] = tempArray[i];
+            for (int i = 0; i < actor.Children.Length; i++)
+                childArray[tempArray.Length + i] = actor.Children[i];
             //Merges the arrays
             _actors = tempArray;
         }

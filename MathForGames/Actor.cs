@@ -17,9 +17,14 @@ namespace MathForGames
         private Matrix3 _translation = Matrix3.Identity;
         private Matrix3 _rotation = Matrix3.Identity;
         private Matrix3 _scale = Matrix3.Identity;
-        private Actor[] _children = new Actor[0];
         private Actor _parent;
+        private Actor[] _children = new Actor[0];
         private Sprite _sprite;
+
+        public String Name
+        {
+            get { return _name; }
+        }
 
         /// <summary>
         /// True if the start function has been called for this actor
@@ -29,37 +34,17 @@ namespace MathForGames
             get { return _started; }
         }
 
-        public Vector2 Position
-        {
-            get { return new Vector2(_translation.M02, _translation.M12); }
-            set { SetTranslation(value.x, value.y); }
-        }
-
-        public Vector2 Size
-        {
-            get { return new Vector2(_scale.M00, _scale.M11); }
-            set { SetScale(value.x, value.y); }
-        }
-
-        public String Name
-        {
-            get { return _name; }
-        }
-
+        /// <summary>
+        /// The forwards facing rotation of the actor
+        /// </summary>
         public Vector2 Forwards
         {
             get { return new Vector2(_rotation.M00, _rotation.M10); }
             set
             {
-                Vector2 point = value.Normalized + Position;
+                Vector2 point = value.Normalized + WorldPosition;
                 LookAt(point);
             }
-        }
-
-        public Sprite Sprite
-        {
-            get { return _sprite; }
-            set { _sprite = value; }
         }
 
         /// <summary>
@@ -71,21 +56,9 @@ namespace MathForGames
             set { _collider = value; }
         }
 
-        public Vector2 LocalPosition
-        {
-            get { return new Vector2(_localTransform.M02 + WorldPosition.x, _localTransform.M12 + WorldPosition.y); }
-            set { SetTranslation(value.x + WorldPosition.x, value.y + WorldPosition.y); }
-        }
-
-        public Vector2 WorldPosition
-        {
-            get { return new Vector2(_translation.M02, _translation.M12); }
-            set { SetTranslation(value.x, value.y); }
-        }
-
         public Matrix3 GlobalTransform
         {
-            get { return _globalTransform; } 
+            get { return _globalTransform; }
             private set { _globalTransform = value; }
         }
 
@@ -95,33 +68,89 @@ namespace MathForGames
             private set { _localTransform = value; }
         }
 
+        /// <summary>
+        /// The parent of the current actor (if any)
+        /// </summary>
         public Actor Parent
         {
             get { return _parent; }
             set { _parent = value; }
         }
 
+        /// <summary>
+        /// The children of this actor (if any)
+        /// </summary>
         public Actor[] Children
         {
             get { return _children; }
         }
 
-        public Vector2 Forward
+        /// <summary>
+        /// The actor's sprite
+        /// </summary>
+        public Sprite Sprite
         {
-            get { return new Vector2(_rotation.M00, _rotation.M10); }
-            set
+            get { return _sprite; }
+            set { _sprite = value; }
+        }
+
+        /// <summary>
+        /// The position of the actor relative to the parent
+        /// </summary>
+        public Vector2 LocalPosition
+        {
+            get { return new Vector2(_localTransform.M02 + WorldPosition.x, _localTransform.M12 + WorldPosition.y); }
+            set { SetTranslation(value.x + WorldPosition.x, value.y + WorldPosition.y); }
+        }
+
+        /// <summary>
+        /// The absolute position of the actor, regardless of parent
+        /// </summary>
+        public Vector2 WorldPosition
+        {
+            //Return the Global Transforms T Column
+            get { return new Vector2(_translation.M02, _translation.M12); }
+            set 
             {
-                Vector2 point = value.Normalized + LocalPosition;
-                LookAt(point);
+                //If the actor has a Parent
+                if (Parent != null)
+                {
+                    //Offset the values by the Parents and tranlate the actor
+                    float xScale = (value.x - Parent.WorldPosition.x) / new Vector2(_globalTransform.M00, _globalTransform.M10).Magnitude;
+                    float yScale = (value.y - Parent.WorldPosition.y) / new Vector2(_globalTransform.M10, _globalTransform.M11).Magnitude;
+                    SetTranslation(xScale, yScale);
+                }
+                //Else change the Local Position to the given values
+                else
+                    LocalPosition = value;
             }
         }
 
+        /// <summary>
+        /// The Size of the actor
+        /// </summary>
+        public Vector2 Size
+        {
+            get 
+            {
+                float xScale = new Vector2(_scale.M00, _scale.M10).Magnitude;
+                float yScale = new Vector2(_scale.M01, _scale.M11).Magnitude;
+                return new Vector2(xScale, yScale); 
+            }
+            set { SetScale(value.x, value.y); }
+        }
+
+        /// <summary>
+        /// A Empty Actor Constructor
+        /// </summary>
         public Actor() { }
 
-        public Actor(float x, float y, string name = "Actor", string path = "") :
-            this(new Vector2 { x = x, y = y }, name, path)
-        { }
-
+        /// <summary>
+        /// The base Actor Constructor
+        /// </summary>
+        /// <param name="position">The position of the actor</param>
+        /// <param name="name">The actor's name</param>
+        /// <param name="path">The path of the actor's sprite</param>
         public Actor(Vector2 position, string name = "Actor", string path = "")
         {
             LocalPosition = position;
@@ -131,8 +160,16 @@ namespace MathForGames
                 _sprite = new Sprite(path);
         }
 
+        public Actor(float x, float y, string name = "Actor", string path = "") :
+            this(new Vector2 { x = x, y = y }, name, path)
+        { }
+
+        /// <summary>
+        /// Updates the Position, rotation, and size of the Actor
+        /// </summary>
         public void UpdateTransforms()
         {
+            LocalTransform = _translation * _rotation * _scale;
             if (Parent != null)
                 GlobalTransform = Parent.GlobalTransform * LocalTransform;
             else 
@@ -156,6 +193,8 @@ namespace MathForGames
 
             //Merges the arrays
             _children = tempArray;
+
+            //Link the child to the actor
             child.Parent = this;
         }
 
@@ -187,9 +226,12 @@ namespace MathForGames
 
             //Merges the arrays
             if (actorRemoved)
+            {
                 _children = tempArray;
-
-            child.Parent = null;
+                //Removes the child from the actor
+                child.Parent = null;
+            }
+            
             return actorRemoved;
         }
 
@@ -201,8 +243,14 @@ namespace MathForGames
 
         public virtual void Update(float deltaTime)
         {
-            Rotate(0.0001f);
-            LocalTransform = _translation * _rotation * _scale;
+            if (Name != "Space" && Name != "UFO")
+                Rotate(0.001f);
+            if (Name == "Uranus")
+                Rotate(-0.002f);
+            if (Name == "Saturn's Rings")
+                Rotate(-0.005f);
+
+
             UpdateTransforms();
         }
 
@@ -301,10 +349,10 @@ namespace MathForGames
         public void LookAt(Vector2 position)
         {
             //Find the direction the the actor should look in
-            Vector2 direction = (position - LocalPosition).Normalized;
+            Vector2 direction = (position - WorldPosition).Normalized;
 
             //Use the dot product to find the angle the actor needs to rotate
-            float dotProd = Vector2.DotProduct(direction, Forward);
+            float dotProd = Vector2.DotProduct(direction, Forwards);
 
             if (dotProd > 1)
                 dotProd = 1;
@@ -316,7 +364,7 @@ namespace MathForGames
             Vector2 perpDirection = new Vector2(direction.y, -direction.x);
 
             //Find the dot product of the perpindicular vector and the current forward
-            float perpDot = Vector2.DotProduct(perpDirection, Forward);
+            float perpDot = Vector2.DotProduct(perpDirection, Forwards);
 
             //If the result isn't 0, use it to change the sign of the angle to be either positive or negative
             if (perpDot != 0)
