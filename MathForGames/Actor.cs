@@ -26,6 +26,7 @@ namespace MathForGames
         private Actor _parent;
         private Actor[] _children = new Actor[0];
         private Shape _shape;
+        public bool IsActorGrounded = true;
 
         public String Name
         {
@@ -96,7 +97,7 @@ namespace MathForGames
         /// </summary>
         public Vector3 LocalPosition
         {
-            get { return new Vector3(_localTransform.M02 + WorldPosition.x, _localTransform.M12 + WorldPosition.y, _localTransform.M22 + WorldPosition.z); }
+            get { return new Vector3(_localTransform.M03 + WorldPosition.x, _localTransform.M13 + WorldPosition.y, _localTransform.M23 + WorldPosition.z); }
             set { SetTranslation(value.x + WorldPosition.x, value.y + WorldPosition.y, value.z + WorldPosition.z); }
         }
 
@@ -106,7 +107,7 @@ namespace MathForGames
         public Vector3 WorldPosition
         {
             //Return the Global Transforms T Column
-            get { return new Vector3 (_translation.M02, _translation.M12, _translation.M22); }
+            get { return new Vector3 (_translation.M03, _translation.M13, _translation.M23); }
             set 
             {
                 //If the actor has a Parent
@@ -154,6 +155,12 @@ namespace MathForGames
             LocalPosition = position;
             _name = name;
             _shape = shape;
+
+            if (_shape == Shape.SPHERE)
+                Collider = new SphereCollider(this);
+            if (_shape == Shape.CUBE)
+                Collider = new AABBCollider(this.Size.x, this.Size.y, this);
+
         }
 
         public Actor(float x, float y, float z, string name = "Actor", Shape shape = Shape.SPHERE) :
@@ -240,6 +247,14 @@ namespace MathForGames
         {
             LocalTransform = _translation * _rotation * _scale;
             UpdateTransforms();
+
+            if (LocalPosition.y <= 1)
+                IsActorGrounded = true;
+            else
+                IsActorGrounded = false;
+
+            if (!IsActorGrounded)
+                Translate(0, -1 * deltaTime, 0);
         }
 
         public virtual void Draw()
@@ -255,6 +270,9 @@ namespace MathForGames
                     Raylib.DrawSphere(position, Size.x, Color.BLACK);
                     break;
             }
+
+            if (Raylib.IsKeyDown(KeyboardKey.KEY_TAB))
+                Collider.Draw();
         }
 
         public void End()

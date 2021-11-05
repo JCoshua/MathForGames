@@ -33,16 +33,19 @@ namespace MathForGames
         {
             //Get the player input direction
             int xDirection = -Convert.ToInt32(Raylib.IsKeyDown(KeyboardKey.KEY_A)) + Convert.ToInt32(Raylib.IsKeyDown(KeyboardKey.KEY_D));
+            int yDirection = 0;
+            if (IsActorGrounded)
+                yDirection = Convert.ToInt32(Raylib.IsKeyPressed(KeyboardKey.KEY_SPACE));
             int zDirection = -Convert.ToInt32(Raylib.IsKeyDown(KeyboardKey.KEY_W)) + Convert.ToInt32(Raylib.IsKeyDown(KeyboardKey.KEY_S));
 
             //Creates a vector that stores the move input
-            Vector3 moveDirection = new Vector3(xDirection, 0, zDirection);
+            Vector3 moveDirection = new Vector3(xDirection, yDirection, zDirection);
             Velocity = moveDirection.Normalized * Speed * deltaTime;
 
             //if (Velocity.Magnitude > 0)
             //    Forwards = Velocity.Normalized;
 
-            Translate(Velocity.x, 0, Velocity.z);
+            Translate(Velocity.x, Velocity.y, Velocity.z);
             base.Update(deltaTime);
         }
 
@@ -53,7 +56,7 @@ namespace MathForGames
 
         public override void OnCollision(Actor actor)
         {
-            
+            Console.WriteLine("Collision");
         }
     }
 }

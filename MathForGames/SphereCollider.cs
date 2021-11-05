@@ -6,7 +6,7 @@ using Raylib_cs;
 
 namespace MathForGames
 {
-    class CircleCollider : Collider
+    class SphereCollider : Collider
     {
         private float _collisionRadius;
 
@@ -16,12 +16,17 @@ namespace MathForGames
             set { _collisionRadius = value; }
         }
 
-        public CircleCollider(float collisionRadius, Actor owner) : base(owner, ColliderType.CIRCLE)
+        public SphereCollider(float collisionRadius, Actor owner) : base(owner, ColliderType.CIRCLE)
         {
             CollisionRadius = collisionRadius;
         }
 
-        public override bool CheckCollisionCircle(CircleCollider other)
+        public SphereCollider (Actor owner) : base(owner, ColliderType.CIRCLE)
+        {
+            CollisionRadius = Owner.Size.x;
+        }
+
+        public override bool CheckCollisionCircle(SphereCollider other)
         {
             //Checks if the other Collider and this collider belong to the same owner
             if (other.Owner == Owner)
@@ -62,7 +67,7 @@ namespace MathForGames
         public override void Draw()
         {
             base.Draw();
-            Raylib.DrawCircleLines((int)Owner.LocalPosition.x, (int)Owner.LocalPosition.y, CollisionRadius, Color.RED);
+            Raylib.DrawSphere(new System.Numerics.Vector3(Owner.WorldPosition.x, Owner.WorldPosition.y, Owner.WorldPosition.z), CollisionRadius, Color.RED);
         }
     }
 }

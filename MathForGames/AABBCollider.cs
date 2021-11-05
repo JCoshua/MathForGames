@@ -79,7 +79,7 @@ namespace MathForGames
             _height = height;
         }
 
-        public override bool CheckCollisionCircle(CircleCollider other)
+        public override bool CheckCollisionCircle(SphereCollider other)
         {
             return other.CheckCollisionAABB(this);
         }
