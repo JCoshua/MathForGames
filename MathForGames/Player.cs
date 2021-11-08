@@ -42,8 +42,8 @@ namespace MathForGames
             Vector3 moveDirection = new Vector3(xDirection, yDirection, zDirection);
             Velocity = moveDirection.Normalized * Speed * deltaTime;
 
-            //if (Velocity.Magnitude > 0)
-            //    Forwards = Velocity.Normalized;
+            if (Velocity.Magnitude > 0)
+                Forward = Velocity.Normalized;
 
             Translate(Velocity.x, Velocity.y, Velocity.z);
             base.Update(deltaTime);
@@ -56,7 +56,6 @@ namespace MathForGames
 
         public override void OnCollision(Actor actor)
         {
-            Console.WriteLine("Collision");
         }
     }
 }

@@ -73,13 +73,8 @@ namespace MathForGames
 
             Scene scene = new Scene();
             AddScene(scene);
-            Player player = new Player(0, 1, 0, 50, "Player", Shape.SPHERE);
-            Actor actor = new Actor(5, 1, 5);
-            scene.AddActor(player);
-            scene.AddActor(actor);
-            _camera.Target = new System.Numerics.Vector3(player.WorldPosition.x, player.WorldPosition.y, player.WorldPosition.z);
-            _scenes[_currentSceneIndex].Start();
 
+            _scenes[_currentSceneIndex].Start();
         }
 
         /// <summary>
@@ -87,8 +82,6 @@ namespace MathForGames
         /// </summary>
         private void Update(float deltaTime)
         {
-            _camera.Target = new System.Numerics.Vector3(Scene.Actors[0].WorldPosition.x, Scene.Actors[0].WorldPosition.y, Scene.Actors[0].WorldPosition.z);
-            _camera.Position = new System.Numerics.Vector3(Scene.Actors[0].WorldPosition.x, Scene.Actors[0].WorldPosition.y + 10, Scene.Actors[0].WorldPosition.z + 20);
             _scenes[_currentSceneIndex].Update(deltaTime);
         }
 

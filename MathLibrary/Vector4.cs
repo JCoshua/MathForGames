@@ -59,6 +59,11 @@ namespace MathLibrary
             return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z + rhs.z;
         }
 
+        public static Vector4 CrossProduct(Vector3 lhs, Vector3 rhs)
+        {
+            return new Vector4(lhs.y * rhs.z - lhs.z * rhs.y, lhs.z * rhs.x - lhs.x * rhs.z, lhs.x * rhs.y - lhs.y * rhs.x, 0);
+        }
+
         /// <summary>
         /// Gets the Angle of a Dot Product in Radian form
         /// </summary>

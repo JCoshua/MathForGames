@@ -26,6 +26,7 @@ namespace MathForGames
         private Actor _parent;
         private Actor[] _children = new Actor[0];
         private Shape _shape;
+        private Color _color;
         public bool IsActorGrounded = true;
 
         public String Name
@@ -44,14 +45,14 @@ namespace MathForGames
         /// <summary>
         /// The forwards facing rotation of the actor
         /// </summary>
-        public Vector3 Forwards
+        public Vector3 Forward
         {
             get { return new Vector3(_rotation.M02, _rotation.M12, _rotation.M22); }
-            //set
-            //{
-            //    Vector2 point = value.Normalized + WorldPosition;
-            //    LookAt(point);
-            //}
+            set
+            {
+                Vector3 point = value.Normalized + WorldPosition;
+                LookAt(point);
+            }
         }
 
         /// <summary>
@@ -123,6 +124,14 @@ namespace MathForGames
                 else
                     LocalPosition = value;
             }
+        }
+
+        /// <summary>
+        /// The Color of the Actor
+        /// </summary>
+        public Color ShapeColor
+        {
+            get { return _color; }
         }
 
         /// <summary>
@@ -247,14 +256,6 @@ namespace MathForGames
         {
             LocalTransform = _translation * _rotation * _scale;
             UpdateTransforms();
-
-            if (LocalPosition.y <= 1)
-                IsActorGrounded = true;
-            else
-                IsActorGrounded = false;
-
-            if (!IsActorGrounded)
-                Translate(0, -1 * deltaTime, 0);
         }
 
         public virtual void Draw()
@@ -264,15 +265,19 @@ namespace MathForGames
             switch (_shape)
             {
                 case Shape.CUBE:
-                    Raylib.DrawCube(position, Size.x, Size.y, Size.z, Color.BLACK);
+                    Raylib.DrawCube(position, Size.x, Size.y, Size.z, ShapeColor);
                     break;
                 case Shape.SPHERE:
-                    Raylib.DrawSphere(position, Size.x, Color.BLACK);
+                    Raylib.DrawSphere(position, Size.x, ShapeColor);
                     break;
             }
 
             if (Raylib.IsKeyDown(KeyboardKey.KEY_TAB))
+            {
+                System.Numerics.Vector3 endPos = new System.Numerics.Vector3(WorldPosition.x + Forward.x * 10, WorldPosition.y + Forward.y * 10, WorldPosition.z + Forward.z * 10);
+                Raylib.DrawLine3D(position, endPos, Color.RED);
                 Collider.Draw();
+            }
         }
 
         public void End()
@@ -374,29 +379,76 @@ namespace MathForGames
         /// <param name="position">The position the actor should be looking towards</param>
         public void LookAt(Vector3 position)
         {
-            ////Find the direction the the actor should look in
-            //Vector3 direction = (position - WorldPosition).Normalized;
+            //Find the direction the the actor should look in
+            Vector3 direction = (position - WorldPosition).Normalized;
 
-            ////Use the dot product to find the angle the actor needs to rotate
-            //float dotProd = Vector3.DotProduct(direction, Forwards);
+            //If the direction's length is 0
+            if (direction.Magnitude == 0)
+                //Set the direction to forwards
+                direction = new Vector3(0, 0, 1);
 
-            //if (dotProd > 1)
-            //    dotProd = 1;
+            //Create a Vector that points up
+            Vector3 alignAxis = new Vector3(0, 1, 0);
 
-            //float angle = (float)Math.Acos(dotProd);
+            //Creates Vectors that will be the new x and y axis
+            Vector3 newYAxis = new Vector3(0, 1, 0);
+            Vector3 newXAxis = new Vector3(1, 0, 0);
 
+            //If the direction vector is facing directly up
+            if (Math.Abs(direction.y) > 0 && direction.x == 0 && direction.z == 0)
+            {
+                //Set the Align Axis vector to face right
+                alignAxis = new Vector3(1, 0, 0);
 
-            ////Find a perpindicular vector to the direction
-            //Vector3 perpDirection = new Vector3(direction.y, -direction.x);
+                //Get the Cross Product of the direction and the newly aligned axis to get the Y Axis
+                newYAxis = Vector3.CrossProduct(direction, alignAxis).Normalize();
+                //Get the Cross Product of the new Y Axis and the direction to get the X Axis
+                newXAxis = Vector3.CrossProduct(newYAxis, direction).Normalize();
+            }
+            //If the direction vector is not facing directly up
+            else
+            {
+                //Get the Cross Product of the aligned Axis and the direction to get the new X Axis
+                newXAxis = Vector3.CrossProduct(alignAxis, direction).Normalize();
+                //Get the Cross Product of the direction and the new X Axis to get the new X Axis
+                newYAxis = Vector3.CrossProduct(direction, newXAxis).Normalize();
+            }
 
-            ////Find the dot product of the perpindicular vector and the current forward
-            //float perpDot = Vector3.DotProduct(perpDirection, Forwards);
+            //Change the rotation with the new axis
+            _rotation = new Matrix4(newXAxis.x, newYAxis.x, direction.x, 0,
+                                    newXAxis.y, newYAxis.y, direction.y, 0,
+                                    newXAxis.z, newYAxis.z, direction.z, 0,
+                                    0, 0, 0, 1);
+        }
 
-            ////If the result isn't 0, use it to change the sign of the angle to be either positive or negative
-            //if (perpDot != 0)
-            //    angle *= -perpDot / Math.Abs(perpDot);
+        /// <summary>
+        /// Sets a RayLib Color
+        /// </summary>
+        /// <param name="color">The color set</param>
+        public void SetColor(Color color)
+        {
+            _color = color;
+        }
 
-            //Rotate(angle);
+        /// <summary>
+        /// Creates the Color of an object using a Vector4
+        /// </summary>
+        /// <param name="colorValue">The Vector4 that holds the Color Values</param>
+        public void SetColor(Vector4 colorValue)
+        {
+            _color = new Color((int)colorValue.x, (int)colorValue.x, (int)colorValue.z, (int)colorValue.w);
+        }
+
+        /// <summary>
+        /// Creates a Color for an actor
+        /// </summary>
+        /// <param name="r">The Red Value</param>
+        /// <param name="g">The Green Value</param>
+        /// <param name="b">The Blue Value</param>
+        /// <param name="a">Transparent</param>
+        public void SetColor(int r, int g, int b, int a)
+        {
+            _color = new Color(r, g, b, a);
         }
     }
 }
